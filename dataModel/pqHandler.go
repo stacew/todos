@@ -66,7 +66,7 @@ func (s *pqHandler) RemoveTodo(id int) bool {
 	return cnt > 0
 }
 func (s *pqHandler) CompleteTodo(id int, complete bool) bool {
-	stmt, err := s.db.Prepare("UPDATE todos SET completed=$2 WHERE id=$1")
+	stmt, err := s.db.Prepare("UPDATE todos SET completed=$1 WHERE id=$2")
 	if err != nil {
 		panic(err)
 	}
