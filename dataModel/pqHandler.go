@@ -11,10 +11,10 @@ type pqHandler struct {
 	db *sql.DB
 }
 
-func (s *pqHandler) GetTodos(sessionId string) []*Todo {
+func (s *pqHandler) GetTodos(sessionID string) []*Todo {
 	todos := []*Todo{}
-	// rows, err := s.db.Query("SELECT id, name, completed, createdAt FROM todos WHERE sessionId=?", sessionId)
-	rows, err := s.db.Query("SELECT id, name, completed, createdAt FROM todos WHERE sessionId=$1", sessionId)
+	// rows, err := s.db.Query("SELECT id, name, completed, createdAt FROM todos WHERE sessionID=?", sessionID)
+	rows, err := s.db.Query("SELECT id, name, completed, createdAt FROM todos WHERE sessionID=$1", sessionID)
 	if err != nil {
 		panic(err)
 	}
@@ -28,16 +28,16 @@ func (s *pqHandler) GetTodos(sessionId string) []*Todo {
 
 	return todos
 }
-func (s *pqHandler) AddTodo(sessionId string, name string) *Todo {
-	// stmt, err := s.db.Prepare("INSERT INTO todos (sessionId, name, completed, createdAt) VALUES (?, ?, ?, datetime('now'))")
-	stmt, err := s.db.Prepare("INSERT INTO todos (sessionId, name, completed, createdAt) VALUES ($1, $2, $3, NOW()) RETURNING id")
+func (s *pqHandler) AddTodo(sessionID string, name string) *Todo {
+	// stmt, err := s.db.Prepare("INSERT INTO todos (sessionID, name, completed, createdAt) VALUES (?, ?, ?, datetime('now'))")
+	stmt, err := s.db.Prepare("INSERT INTO todos (sessionID, name, completed, createdAt) VALUES ($1, $2, $3, NOW()) RETURNING id")
 	if err != nil {
 		panic(err)
 	}
 
-	// result, err := stmt.Exec(sessionId, name, false)
+	// result, err := stmt.Exec(sessionID, name, false)
 	var id int
-	err = stmt.QueryRow(sessionId, name, false).Scan(&id)
+	err = stmt.QueryRow(sessionID, name, false).Scan(&id)
 	if err != nil {
 		panic(err)
 	}
@@ -81,7 +81,7 @@ func (s *pqHandler) Close() {
 	s.db.Close()
 }
 func newPQHandler(dbConn string) DataHandlerInterface {
-	database, err := sql.Open("postgre", dbConn)
+	database, err := sql.Open("postgres", dbConn)
 	if err != nil {
 		panic(err)
 	}
@@ -89,14 +89,14 @@ func newPQHandler(dbConn string) DataHandlerInterface {
 	statement, err := database.Prepare(
 		// `CREATE TABLE IF NOT EXISTS todos (
 		// id 			INTEGER PRIMARY KEY AUTOINCREMENT,
-		// sessionId	STRING,
+		// sessionID	STRING,
 		// name		TEXT,
 		// completed	BOOLEAN,
 		// createdAt	DATETIME
 		// );`)
 		`CREATE TABLE IF NOT EXISTS todos (
 			id 			SERIAL PRIMARY KEY,	
-			sessionId	VARCHAR(256),
+			sessionID	VARCHAR(256),
 			name		TEXT,
 			completed	BOOLEAN,
 			createdAt	TIMESTAMP
@@ -111,8 +111,8 @@ func newPQHandler(dbConn string) DataHandlerInterface {
 
 	// Index 작업. 기존 DB 순차탐색이라 느리기 떄문에 이렇게 처리하려 바이너리트리로 추가 될 때 Index 트리를 만듬.
 	statement, err = database.Prepare(
-		`CREATE INDEX IF NOT EXISTS sessionIdIndexOnTodos ON todos (
-			sessionId ASC
+		`CREATE INDEX IF NOT EXISTS sessionIDIndexOnTodos ON todos (
+			sessionID ASC
 		);`)
 	if err != nil {
 		panic(err)
