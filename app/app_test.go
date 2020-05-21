@@ -10,7 +10,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/stacew/todos/dataModel"
+	"stacew/todos/dataModel"
+
 	"github.com/stretchr/testify/assert"
 )
 

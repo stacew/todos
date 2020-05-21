@@ -3,13 +3,13 @@ package app
 import (
 	"net/http"
 	"os"
+	"stacew/todos/dataModel"
+
 	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"github.com/stacew/todos/dataModel"
-
 	"github.com/unrolled/render"
 	"github.com/urfave/negroni"
 )
@@ -108,7 +108,7 @@ func CheckSignin(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) 
 	http.Redirect(w, r, "/signin.html", http.StatusTemporaryRedirect)
 }
 
-func MakeNewHandler(filepath string) *AppHandler {
+func MakeNewHandler(dbConn string) *AppHandler {
 
 	r := mux.NewRouter()
 
@@ -123,7 +123,7 @@ func MakeNewHandler(filepath string) *AppHandler {
 
 	a := &AppHandler{
 		Handler:   neg,
-		dmHandler: dataModel.NewDataHandler(filepath),
+		dmHandler: dataModel.NewDataHandler(dbConn),
 	}
 
 	r.HandleFunc("/todoH", a.getTodoListHandler).Methods("GET")
